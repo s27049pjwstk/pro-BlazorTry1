@@ -1,0 +1,11 @@
+﻿@using BlazorTry1.Models
+
+<tr>
+    <td>@User.Id</td>
+    <td>@User.Name</td>
+    <td>@User.DiscordId</td>
+</tr>
+
+@code {
+    [Parameter] public required User User { get; set; }
+}
