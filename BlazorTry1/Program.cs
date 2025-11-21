@@ -1,10 +1,12 @@
 using BlazorTry1;
+using BlazorTry1.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddDbContext<Context>();
 
 var app = builder.Build();
 

@@ -11,13 +11,10 @@
 
     private User? User { get; set; }
     [SupplyParameterFromQuery] public int id { get; set; }
+    private readonly Context _database = new();
 
     protected override async Task OnInitializedAsync() {
-        User = new User {
-            Id = id
-            , Name = "John"
-            , DiscordId = "123719084219"
-        };
+        User = await _database.Users.FindAsync(id);
 
         if (User is null) {
             NavigationManager.NavigateTo("users");
