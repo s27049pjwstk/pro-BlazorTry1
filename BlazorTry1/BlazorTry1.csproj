@@ -18,10 +18,16 @@
     <ItemGroup>
       <AdditionalFiles Include="Layout\MainLayout.razor" />
       <AdditionalFiles Include="Layout\NavMenu.razor" />
-      <AdditionalFiles Include="Pages\Counter.razor" />
       <AdditionalFiles Include="Pages\Error.razor" />
       <AdditionalFiles Include="Pages\Home.razor" />
-      <AdditionalFiles Include="Pages\Weather.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.11">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.11" />
     </ItemGroup>
 
 </Project>

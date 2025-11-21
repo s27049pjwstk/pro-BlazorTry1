@@ -1,0 +1,27 @@
+﻿@page "/User"
+@inject NavigationManager NavigationManager
+<h3>User</h3>
+<div>
+    <p>Id = @User.Id</p>
+    <p>Name = @User.Name</p>
+    <p>Discord = @User.DiscordId</p>
+</div>
+
+@code {
+
+    private User? User { get; set; }
+    [SupplyParameterFromQuery] public int id { get; set; }
+
+    protected override async Task OnInitializedAsync() {
+        User = new User {
+            Id = id
+            , Name = "John"
+            , DiscordId = "123719084219"
+        };
+
+        if (User is null) {
+            NavigationManager.NavigateTo("users");
+        }
+    }
+
+}
