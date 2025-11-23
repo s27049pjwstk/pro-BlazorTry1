@@ -2,6 +2,41 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<table>
+    <tbody>
+    @foreach (var user in _users) {
+        <tr  style="cursor:pointer">
+            <td @onclick="Test">@user.Id</td>
+            <td @onclick="Test">@user.Name</td>
+            <td @onclick="Test">@user.DiscordId</td>
+            <td>
+                <a href="@($"/User?id={user.Id}")">link</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code {
+    
+    private List<User> _users = [];
+    private readonly Context _database = new();
+    
+    protected override void OnInitialized() {
+        _users = _database.Users.ToList();
+    }
+
+    public required List<User> Users { get; set; }
+
+    private void GoToDetails(int id) {
+        Console.WriteLine($"click {id}");
+        NavigationManager.NavigateTo($"/User?id={id}");
+    }
+
+    private void Test() {
+        Console.WriteLine("click");
+        NavigationManager.NavigateTo($"/Users");
+    }
+
+}

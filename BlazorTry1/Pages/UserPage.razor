@@ -1,6 +1,6 @@
 ﻿@page "/User"
-@inject NavigationManager NavigationManager
-<h3>User</h3>
+
+<PageTitle>User</PageTitle>
 <div>
     <p>Id = @User.Id</p>
     <p>Name = @User.Name</p>
@@ -10,11 +10,11 @@
 @code {
 
     private User? User { get; set; }
-    [SupplyParameterFromQuery] public int id { get; set; }
+    [SupplyParameterFromQuery] public int Id { get; set; }
     private readonly Context _database = new();
 
     protected override async Task OnInitializedAsync() {
-        User = await _database.Users.FindAsync(id);
+        User = await _database.Users.FindAsync(Id);
 
         if (User is null) {
             NavigationManager.NavigateTo("users");
