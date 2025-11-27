@@ -11,4 +11,9 @@ public class User {
 
     [Required(ErrorMessage = "Discord User Id is required")]
     public string DiscordId { get; set; }
+
+    //todo Awards
+    //todo Certifications
+    //todo Attended Events
+    //todo Rank
 }
