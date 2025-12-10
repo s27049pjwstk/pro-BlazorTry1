@@ -8,7 +8,7 @@ public class Rank {
     public int SortOrder { get; set; }
 
     [Required, MaxLength(50)]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     [MaxLength(20)]
     public string? Abbreviation { get; set; }

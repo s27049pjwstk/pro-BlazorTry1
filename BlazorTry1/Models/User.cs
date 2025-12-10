@@ -21,6 +21,8 @@ public class User {
 
     public bool Active { get; set; }
 
-    public int RankId { get; set; }
-    public Rank Rank { get; set; } = null!;
+    public int? RankId { get; set; }
+    public Rank? Rank { get; set; }
+
+    public ICollection<RankLog> RankLogs { get; set; } = new List<RankLog>();
 }

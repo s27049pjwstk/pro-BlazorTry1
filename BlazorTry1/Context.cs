@@ -8,6 +8,7 @@ public class Context : DbContext {
     public Context(DbContextOptions options) : base(options) {}
     public DbSet<User> Users => Set<User>();
     public DbSet<Rank> Ranks => Set<Rank>();
+    public DbSet<RankLog> RankLogs => Set<RankLog>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
@@ -30,7 +31,26 @@ public class Context : DbContext {
             e.HasIndex(r => r.SortOrder).IsUnique();
             e.HasMany(r => r.Users)
                 .WithOne(u => u.Rank)
-                .HasForeignKey(u => u.RankId);
+                .HasForeignKey(u => u.RankId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<RankLog>(e => {
+            e.HasKey(rl => rl.Id);
+            e.Property(rl => rl.Date)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            e.HasOne(rl => rl.User)
+                .WithMany(u => u.RankLogs)
+                .HasForeignKey(rl => rl.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(rl => rl.Rank)
+                .WithMany()
+                .HasForeignKey(rl => rl.RankId)
+                .OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(rl => rl.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(rl => rl.ApprovedById)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }
