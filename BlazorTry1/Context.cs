@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using BlazorTry1.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace BlazorTry1.Models;
+namespace BlazorTry1;
 
 public class Context : DbContext {
     public Context() {}
