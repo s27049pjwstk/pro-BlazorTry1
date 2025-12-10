@@ -1,19 +1,23 @@
-﻿namespace BlazorTry1.Models;
+﻿using System.ComponentModel.DataAnnotations;
 
-using System.ComponentModel.DataAnnotations;
+namespace BlazorTry1.Models;
 
 public class User {
-    [Required(ErrorMessage = "Id is required")]
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Name is required")]
+    [Required, MaxLength(32)]
     public string Name { get; set; }
 
-    [Required(ErrorMessage = "Discord User Id is required")]
-    public string DiscordId { get; set; }
+    [MaxLength(32)]
+    public string? DiscordId { get; set; }
 
-    //todo Awards
-    //todo Certifications
-    //todo Attended Events
-    //todo Rank
+    [MaxLength(17)]
+    public string? SteamId { get; set; }
+
+    public DateTime DateJoined { get; set; }
+
+    [MaxLength(1000)]
+    public string? Note { get; set; }
+
+    public bool Active { get; set; }
 }

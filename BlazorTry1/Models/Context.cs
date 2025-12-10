@@ -1,21 +1,25 @@
-﻿namespace BlazorTry1.Models;
+﻿using Microsoft.EntityFrameworkCore;
 
-using Microsoft.EntityFrameworkCore;
+namespace BlazorTry1.Models;
 
 public class Context : DbContext {
     public Context() {}
     public Context(DbContextOptions options) : base(options) {}
     public DbSet<User> Users => Set<User>();
-    public DbSet<Rank> Ranks => Set<Rank>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
-        modelBuilder.Entity<Rank>(opt => {
-            opt.HasKey(r => r.Id);
-            opt.Property(r => r.Name).IsRequired();
+        modelBuilder.Entity<User>(e => {
+            e.HasKey(u => u.Id);
+            e.Property(u => u.DateJoined)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            e.Property(u => u.Active)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValue(false);
         });
     }
 }
