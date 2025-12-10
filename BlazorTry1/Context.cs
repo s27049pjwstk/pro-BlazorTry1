@@ -7,6 +7,7 @@ public class Context : DbContext {
     public Context() {}
     public Context(DbContextOptions options) : base(options) {}
     public DbSet<User> Users => Set<User>();
+    public DbSet<Rank> Ranks => Set<Rank>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
@@ -21,6 +22,15 @@ public class Context : DbContext {
             e.Property(u => u.Active)
                 .ValueGeneratedOnAdd()
                 .HasDefaultValue(false);
+        });
+        modelBuilder.Entity<Rank>(e => {
+            e.HasKey(r => r.Id);
+            e.HasIndex(r => r.Name).IsUnique();
+            e.HasIndex(r => r.Code).IsUnique();
+            e.HasIndex(r => r.SortOrder).IsUnique();
+            e.HasMany(r => r.Users)
+                .WithOne(u => u.Rank)
+                .HasForeignKey(u => u.RankId);
         });
     }
 }
