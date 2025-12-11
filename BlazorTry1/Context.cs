@@ -6,6 +6,7 @@ namespace BlazorTry1;
 public class Context : DbContext {
     public Context() {}
     public Context(DbContextOptions options) : base(options) {}
+
     public DbSet<User> Users => Set<User>();
     public DbSet<Rank> Ranks => Set<Rank>();
     public DbSet<RankLog> RankLogs => Set<RankLog>();
@@ -38,6 +39,7 @@ public class Context : DbContext {
         });
         modelBuilder.Entity<RankLog>(e => {
             e.HasKey(r => r.Id);
+            e.HasIndex(r => r.UserId);
             e.Property(r => r.Date)
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
@@ -56,6 +58,7 @@ public class Context : DbContext {
         });
         modelBuilder.Entity<LeaveOfAbsence>(e => {
             e.HasKey(l => l.Id);
+            e.HasIndex(l => l.UserId);
             e.Property(l => l.DateStart)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
             e.HasOne(l => l.User)
@@ -65,6 +68,7 @@ public class Context : DbContext {
         });
         modelBuilder.Entity<StatusLog>(e => {
             e.HasKey(s => s.Id);
+            e.HasIndex(s => s.UserId);
             e.Property(s => s.Date)
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
