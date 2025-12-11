@@ -10,6 +10,7 @@ public class Context : DbContext {
     public DbSet<Rank> Ranks => Set<Rank>();
     public DbSet<RankLog> RankLogs => Set<RankLog>();
     public DbSet<LeaveOfAbsence> LeaveOfAbsences => Set<LeaveOfAbsence>();
+    public DbSet<StatusLog> StatusLogs => Set<StatusLog>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
@@ -36,21 +37,21 @@ public class Context : DbContext {
                 .OnDelete(DeleteBehavior.SetNull);
         });
         modelBuilder.Entity<RankLog>(e => {
-            e.HasKey(rl => rl.Id);
-            e.Property(rl => rl.Date)
+            e.HasKey(r => r.Id);
+            e.Property(r => r.Date)
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
-            e.HasOne(rl => rl.User)
+            e.HasOne(r => r.User)
                 .WithMany(u => u.RankLogs)
-                .HasForeignKey(rl => rl.UserId)
+                .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-            e.HasOne(rl => rl.Rank)
+            e.HasOne(r => r.Rank)
                 .WithMany()
-                .HasForeignKey(rl => rl.RankId)
+                .HasForeignKey(r => r.RankId)
                 .OnDelete(DeleteBehavior.SetNull);
-            e.HasOne(rl => rl.ApprovedBy)
+            e.HasOne(r => r.ApprovedBy)
                 .WithMany()
-                .HasForeignKey(rl => rl.ApprovedById)
+                .HasForeignKey(r => r.ApprovedById)
                 .OnDelete(DeleteBehavior.SetNull);
         });
         modelBuilder.Entity<LeaveOfAbsence>(e => {
@@ -61,6 +62,20 @@ public class Context : DbContext {
                 .WithMany(u => u.LeaveOfAbsences)
                 .HasForeignKey(l => l.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<StatusLog>(e => {
+            e.HasKey(s => s.Id);
+            e.Property(s => s.Date)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            e.HasOne(s => s.User)
+                .WithMany(u => u.StatusLogs)
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(s => s.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(s => s.ApprovedById)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

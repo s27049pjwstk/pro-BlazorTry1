@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlazorTry1.Models;
 
@@ -26,4 +27,16 @@ public class User {
 
     public ICollection<RankLog> RankLogs { get; set; } = new List<RankLog>();
     public ICollection<LeaveOfAbsence> LeaveOfAbsences { get; set; } = new List<LeaveOfAbsence>();
+    public ICollection<StatusLog> StatusLogs { get; set; } = new List<StatusLog>();
+
+
+    [NotMapped]
+    public bool Status =>
+        Active &&
+        !isOnLeaveOfAbsence();
+
+    private bool isOnLeaveOfAbsence() {
+        var now = DateTime.UtcNow;
+        return LeaveOfAbsences.Any(l => l.DateStart <= now && l.DateEnd >= now);
+    }
 }
