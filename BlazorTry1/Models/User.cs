@@ -6,7 +6,7 @@ public class User {
     public int Id { get; set; }
 
     [Required, MaxLength(32)]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     [MaxLength(32)]
     public string? DiscordId { get; set; }
@@ -25,4 +25,5 @@ public class User {
     public Rank? Rank { get; set; }
 
     public ICollection<RankLog> RankLogs { get; set; } = new List<RankLog>();
+    public ICollection<LeaveOfAbsence> LeaveOfAbsences { get; set; } = new List<LeaveOfAbsence>();
 }

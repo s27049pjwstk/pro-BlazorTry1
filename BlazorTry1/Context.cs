@@ -9,6 +9,7 @@ public class Context : DbContext {
     public DbSet<User> Users => Set<User>();
     public DbSet<Rank> Ranks => Set<Rank>();
     public DbSet<RankLog> RankLogs => Set<RankLog>();
+    public DbSet<LeaveOfAbsence> LeaveOfAbsences => Set<LeaveOfAbsence>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
@@ -51,6 +52,15 @@ public class Context : DbContext {
                 .WithMany()
                 .HasForeignKey(rl => rl.ApprovedById)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<LeaveOfAbsence>(e => {
+            e.HasKey(l => l.Id);
+            e.Property(l => l.DateStart)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            e.HasOne(l => l.User)
+                .WithMany(u => u.LeaveOfAbsences)
+                .HasForeignKey(l => l.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
