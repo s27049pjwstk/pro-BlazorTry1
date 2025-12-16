@@ -12,6 +12,7 @@ public class Context : DbContext {
     public DbSet<RankLog> RankLogs => Set<RankLog>();
     public DbSet<LeaveOfAbsence> LeaveOfAbsences => Set<LeaveOfAbsence>();
     public DbSet<StatusLog> StatusLogs => Set<StatusLog>();
+    public DbSet<Certification> Certifications => Set<Certification>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
@@ -80,6 +81,10 @@ public class Context : DbContext {
                 .WithMany()
                 .HasForeignKey(s => s.ApprovedById)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<Certification>(e => {
+            e.HasKey(c => c.Id);
+            e.HasIndex(c => c.Name).IsUnique();
         });
     }
 }
