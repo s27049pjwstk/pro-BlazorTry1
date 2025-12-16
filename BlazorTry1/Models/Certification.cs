@@ -10,4 +10,6 @@ public class Certification {
 
     [MaxLength(1000)]
     public string? Description { get; set; }
+
+    public ICollection<UserCertification> UserCertifications { get; set; } = new List<UserCertification>();
 }

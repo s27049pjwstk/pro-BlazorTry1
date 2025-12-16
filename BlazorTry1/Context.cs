@@ -13,6 +13,7 @@ public class Context : DbContext {
     public DbSet<LeaveOfAbsence> LeaveOfAbsences => Set<LeaveOfAbsence>();
     public DbSet<StatusLog> StatusLogs => Set<StatusLog>();
     public DbSet<Certification> Certifications => Set<Certification>();
+    public DbSet<UserCertification> UserCertifications => Set<UserCertification>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
@@ -85,6 +86,26 @@ public class Context : DbContext {
         modelBuilder.Entity<Certification>(e => {
             e.HasKey(c => c.Id);
             e.HasIndex(c => c.Name).IsUnique();
+        });
+        modelBuilder.Entity<UserCertification>(e => {
+            e.HasKey(uc => new { uc.UserId, uc.CertificationId });
+            e.HasIndex(uc => uc.UserId);
+            e.HasIndex(uc => uc.CertificationId);
+            e.Property(uc => uc.Date)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            e.HasOne(uc => uc.User)
+                .WithMany(u => u.UserCertifications)
+                .HasForeignKey(uc => uc.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(uc => uc.Certification)
+                .WithMany(c => c.UserCertifications)
+                .HasForeignKey(uc => uc.CertificationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(uc => uc.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(uc => uc.ApprovedById)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }
