@@ -10,4 +10,6 @@ public class Award {
 
     [MaxLength(1000)]
     public string? Description { get; set; }
+    
+    public ICollection<UserAward> UserAwards { get; set; } = new List<UserAward>();
 }

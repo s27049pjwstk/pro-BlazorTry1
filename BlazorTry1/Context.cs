@@ -15,6 +15,7 @@ public class Context : DbContext {
     public DbSet<Certification> Certifications => Set<Certification>();
     public DbSet<UserCertification> UserCertifications => Set<UserCertification>();
     public DbSet<Award> Awards => Set<Award>();
+    public DbSet<UserAward> UserAwards => Set<UserAward>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
@@ -111,6 +112,26 @@ public class Context : DbContext {
         modelBuilder.Entity<Award>(e => {
             e.HasKey(a => a.Id);
             e.HasIndex(a => a.Name).IsUnique();
+        });
+        modelBuilder.Entity<UserAward>(e => {
+            e.HasKey(ua => ua.Id);
+            e.HasIndex(ua => ua.UserId);
+            e.HasIndex(ua => ua.AwardId);
+            e.Property(ua => ua.Date)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            e.HasOne(ua => ua.User)
+                .WithMany(u => u.UserAwards)
+                .HasForeignKey(ua => ua.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(ua => ua.Award)
+                .WithMany(a => a.UserAwards)
+                .HasForeignKey(ua => ua.AwardId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(ua => ua.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(ua => ua.ApprovedById)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

@@ -29,6 +29,7 @@ public class User {
     public ICollection<LeaveOfAbsence> LeaveOfAbsences { get; set; } = new List<LeaveOfAbsence>();
     public ICollection<StatusLog> StatusLogs { get; set; } = new List<StatusLog>();
     public ICollection<UserCertification> UserCertifications { get; set; } = new List<UserCertification>();
+    public ICollection<UserAward> UserAwards { get; set; } = new List<UserAward>();
 
     [NotMapped]
     public bool Status =>
