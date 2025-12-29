@@ -25,6 +25,12 @@ public class User {
     public int? RankId { get; set; }
     public Rank? Rank { get; set; }
 
+    public int? UnitId { get; set; }
+    public Unit? Unit { get; set; }
+
+    [MaxLength(64)]
+    public string? UnitRole { get; set; }
+
     public ICollection<RankLog> RankLogs { get; set; } = new List<RankLog>();
     public ICollection<LeaveOfAbsence> LeaveOfAbsences { get; set; } = new List<LeaveOfAbsence>();
     public ICollection<StatusLog> StatusLogs { get; set; } = new List<StatusLog>();

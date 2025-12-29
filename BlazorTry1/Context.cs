@@ -16,6 +16,7 @@ public class Context : DbContext {
     public DbSet<UserCertification> UserCertifications => Set<UserCertification>();
     public DbSet<Award> Awards => Set<Award>();
     public DbSet<UserAward> UserAwards => Set<UserAward>();
+    public DbSet<Unit> Units => Set<Unit>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
@@ -24,6 +25,11 @@ public class Context : DbContext {
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         modelBuilder.Entity<User>(e => {
             e.HasKey(u => u.Id);
+            e.HasIndex(u => u.Name).IsUnique();
+            e.HasIndex(u => u.DiscordId).IsUnique();
+            e.HasIndex(u => u.SteamId).IsUnique();
+            e.HasIndex(u => u.RankId);
+            e.HasIndex(u => u.UnitId);
             e.Property(u => u.DateJoined)
                 .ValueGeneratedOnAdd()
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
@@ -131,6 +137,15 @@ public class Context : DbContext {
             e.HasOne(ua => ua.ApprovedBy)
                 .WithMany()
                 .HasForeignKey(ua => ua.ApprovedById)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<Unit>(e => {
+            e.HasKey(u => u.Id);
+            e.HasIndex(u => u.Name).IsUnique();
+            e.HasIndex(u => u.Abbreviation).IsUnique();
+            e.HasMany(u => u.Users)
+                .WithOne(u => u.Unit)
+                .HasForeignKey(u => u.UnitId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
     }
