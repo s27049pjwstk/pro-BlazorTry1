@@ -17,6 +17,7 @@ public class Context : DbContext {
     public DbSet<Award> Awards => Set<Award>();
     public DbSet<UserAward> UserAwards => Set<UserAward>();
     public DbSet<Unit> Units => Set<Unit>();
+    public DbSet<UnitAssignmentLog> UnitAssignmentLogs => Set<UnitAssignmentLog>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
@@ -146,6 +147,26 @@ public class Context : DbContext {
             e.HasMany(u => u.Users)
                 .WithOne(u => u.Unit)
                 .HasForeignKey(u => u.UnitId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<UnitAssignmentLog>(e => {
+            e.HasKey(l => l.Id);
+            e.HasIndex(l => l.UserId);
+            e.HasIndex(l => l.UnitId);
+            e.Property(l => l.Date)
+                .ValueGeneratedOnAdd()
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            e.HasOne(l => l.User)
+                .WithMany(u => u.UnitAssignmentLogs)
+                .HasForeignKey(l => l.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(l => l.Unit)
+                .WithMany()
+                .HasForeignKey(l => l.UnitId)
+                .OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(l => l.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(l => l.ApprovedById)
                 .OnDelete(DeleteBehavior.SetNull);
         });
     }

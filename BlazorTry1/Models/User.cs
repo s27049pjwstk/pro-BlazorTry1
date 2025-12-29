@@ -36,6 +36,7 @@ public class User {
     public ICollection<StatusLog> StatusLogs { get; set; } = new List<StatusLog>();
     public ICollection<UserCertification> UserCertifications { get; set; } = new List<UserCertification>();
     public ICollection<UserAward> UserAwards { get; set; } = new List<UserAward>();
+    public ICollection<UnitAssignmentLog> UnitAssignmentLogs { get; set; } = new List<UnitAssignmentLog>();
 
     [NotMapped]
     public bool Status =>
