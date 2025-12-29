@@ -18,6 +18,8 @@ public class Context : DbContext {
     public DbSet<UserAward> UserAwards => Set<UserAward>();
     public DbSet<Unit> Units => Set<Unit>();
     public DbSet<UnitAssignmentLog> UnitAssignmentLogs => Set<UnitAssignmentLog>();
+    public DbSet<Event> Events => Set<Event>();
+    public DbSet<UserAttendance> UserAttendances => Set<UserAttendance>();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
         optionsBuilder.UseSqlite("data source=database.db");
@@ -168,6 +170,23 @@ public class Context : DbContext {
                 .WithMany()
                 .HasForeignKey(l => l.ApprovedById)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+        modelBuilder.Entity<Event>(e => {
+            e.HasKey(ev => ev.Id);
+            e.HasIndex(ev => ev.Name);
+        });
+        modelBuilder.Entity<UserAttendance>(e => {
+            e.HasKey(ua => new { ua.EventId, ua.UserId });
+            e.HasIndex(ua => ua.UserId);
+            e.HasIndex(ua => ua.EventId);
+            e.HasOne(ua => ua.User)
+                .WithMany(u => u.UserAttendances)
+                .HasForeignKey(ua => ua.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(ua => ua.Event)
+                .WithMany(ev => ev.UserAttendances)
+                .HasForeignKey(ua => ua.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -37,7 +37,8 @@ public class User {
     public ICollection<UserCertification> UserCertifications { get; set; } = new List<UserCertification>();
     public ICollection<UserAward> UserAwards { get; set; } = new List<UserAward>();
     public ICollection<UnitAssignmentLog> UnitAssignmentLogs { get; set; } = new List<UnitAssignmentLog>();
-
+    public ICollection<UserAttendance> UserAttendances { get; set; } = new List<UserAttendance>();
+    
     [NotMapped]
     public bool Status =>
         Active &&
