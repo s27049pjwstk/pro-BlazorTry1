@@ -1,0 +1,29 @@
+﻿@inject NavigationManager Nav
+@inject DevService DevService
+
+<button class="btn btn-sm btn-warning w-100" disabled="@_resetting" @onclick="ResetDb">
+    @_buttonText
+</button>
+
+@code {
+    private bool _resetting;
+    private string _buttonText = "Reset Dev Database";
+
+    private async Task ResetDb() {
+        _resetting = true;
+        _buttonText = "Resetting...";
+        try {
+            await DevService.ResetAsync();
+            _buttonText = "Reset done!";
+            Nav.NavigateTo(Nav.Uri, forceLoad: true);
+        }
+        catch {
+            _buttonText = "Reset failed";
+            throw;
+        }
+        finally {
+            _resetting = false;
+        }
+    }
+
+}
