@@ -1,5 +1,6 @@
 using BlazorTry1;
 using BlazorTry1.Services;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddDbContext<Context>();
 builder.Services.AddScoped<DevService>();
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 
