@@ -1,0 +1,24 @@
+﻿@inject NavigationManager NavigationManager
+
+<MudPaper Class="pa-2" Elevation="2">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+        <MudAvatar Size="Size.Medium"
+                   Color="Color.Primary"
+                   Icon="@Icons.Material.Filled.Person"/>
+        <MudText Typo="Typo.subtitle2" Class="pl-2 flex-grow-1">
+            Username
+        </MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Logout"
+                       Size="Size.Medium"
+                       Color="Color.Default"
+                       OnClick="@Logout"/>
+    </MudStack>
+</MudPaper>
+
+@code {
+    private void Logout() {
+        //todo authentication
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+
+}

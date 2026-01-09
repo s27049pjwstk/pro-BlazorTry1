@@ -40,9 +40,7 @@ public class User {
     public ICollection<UserAttendance> UserAttendances { get; set; } = new List<UserAttendance>();
     
     [NotMapped]
-    public bool Status =>
-        Active &&
-        !isOnLeaveOfAbsence();
+    public string Status => Active ? isOnLeaveOfAbsence() ? "LOA" : "Active" : "Inactive";
 
     private bool isOnLeaveOfAbsence() {
         var now = DateTime.UtcNow;

@@ -1,9 +1,14 @@
-﻿@inject NavigationManager Nav
+﻿@inject NavigationManager NavigationManager
 @inject DevService DevService
 
-<button class="btn btn-sm btn-warning w-100" disabled="@_resetting" @onclick="ResetDb">
+<MudButton Variant="Variant.Filled"
+           Color="Color.Warning"
+           StartIcon="@Icons.Material.Filled.RestartAlt"
+           Disabled="_resetting"
+           OnClick="@ResetDb"
+           FullWidth="true">
     @_buttonText
-</button>
+</MudButton>
 
 @code {
     private bool _resetting;
@@ -15,13 +20,11 @@
         try {
             await DevService.ResetAsync();
             _buttonText = "Reset done!";
-            Nav.NavigateTo(Nav.Uri, forceLoad: true);
-        }
-        catch {
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        } catch {
             _buttonText = "Reset failed";
             throw;
-        }
-        finally {
+        } finally {
             _resetting = false;
         }
     }
