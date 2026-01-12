@@ -19,9 +19,10 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.ShowTransitionDuration = 500;
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 });
-builder.Services.AddScoped<DevService>();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<UnitService>();
+builder.Services.AddScoped<DevService>(); //todo add Interface?
+builder.Services.AddScoped<UserService>(); //todo add Interface
+builder.Services.AddScoped<UnitService>(); //todo add Interface
+builder.Services.AddScoped<ClipboardService>();
 
 var app = builder.Build();
 

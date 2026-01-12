@@ -1,0 +1,122 @@
+﻿@using Microsoft.EntityFrameworkCore
+@inject UnitService UnitService
+@inject UserService UserService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h5">@_dialogTitleText</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form" Disabled="_disabled">
+            <MudAutocomplete @bind-Value="_dto.Unit"
+                             Label="Unit"
+                             Variant="Variant.Outlined"
+                             Margin="Margin.Dense"
+                             Clearable="true"
+                             ResetValueOnEmptyText="true"
+                             MinCharacters="0"
+                             DebounceInterval="200"
+                             ShowProgressIndicator="true"
+                             Validation="ValidateUnitAsync"
+                             SearchFunc="SearchUnits"
+                             ToStringFunc="@(u => u is null ? null : $"{u.Name} ({u.Abbreviation})")">
+                <ItemTemplate Context="u">
+                    <MudStack Row="true"><MudText>@u.Name</MudText><MudSpacer/><MudText><i>@u.Abbreviation</i></MudText></MudStack>
+                </ItemTemplate>
+            </MudAutocomplete>
+            <MudTextField @bind-Value="_dto.UnitRole"
+                          Label="Position"
+                          Variant="Variant.Outlined"
+                          Margin="Margin.Dense"
+                          MaxLength="64"/>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@MudDialog.Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" Disabled="@_disabled" OnClick="@UnassignAsync">
+            Unassign
+        </MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@_disabled" OnClick="@AssignAsync">
+            @_submitButtonText
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+
+@code {
+
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; } = null!;
+
+    [Parameter]
+    public required User User { get; set; }
+
+    private MudForm _form = null!;
+    private bool _disabled;
+
+    private AssigmentDto _dto = new();
+    private string _submitButtonText = "Assign";
+    private string _dialogTitleText = "Error: No User";
+
+    protected override void OnParametersSet() {
+        _dto = new AssigmentDto {
+            UserId = User.Id,
+            Unit = User.Unit,
+            UnitRole = User.UnitRole
+        };
+        if (User.Unit is null) {
+            _dialogTitleText = $"Assign {User.Name} to unit";
+        } else {
+            _dialogTitleText = $"Change assignment of {User.Name}";
+            _submitButtonText = "Reassign";
+        }
+    }
+
+    protected override async Task OnInitializedAsync() {
+        await MudDialog.SetOptionsAsync(MudDialog.Options with {
+            FullWidth = true,
+            CloseOnEscapeKey = true,
+            MaxWidth = MaxWidth.Small
+        });
+    }
+
+    private sealed class AssigmentDto {
+        public int UserId { get; set; }
+        public Unit? Unit { get; set; }
+        public string? UnitRole { get; set; }
+    }
+
+    private async Task<string?> ValidateUnitAsync(int? id) {
+        if (id is null) return null;
+        if (await UnitService.UnitExists(id.Value)) return null;
+        return "Unit does not exist";
+    }
+
+    private async Task AssignAsync() {
+        _dto.UnitRole = _dto.UnitRole?.Trim();
+        await _form.Validate();
+        if (!_form.IsValid) return;
+
+        _disabled = true;
+        try {
+            await UserService.AssignUserAsync(_dto.UserId, _dto.Unit?.Id, _dto.UnitRole);
+            var text = User.Unit is null ? "assigned" : "reassigned";
+            Snackbar.Add($"{User.Name} successfully {text}", Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        } catch (DbUpdateException ex) {
+            Snackbar.Add(ex.InnerException?.Message ?? ex.Message, Severity.Error);
+        } finally {
+            _disabled = false;
+        }
+    }
+
+    private async Task UnassignAsync() {
+        _dto.Unit = null;
+        await AssignAsync();
+    }
+
+    private async Task<IEnumerable<Unit>> SearchUnits(string search, CancellationToken ct) => await UnitService.GetAllAsync(search, ct);
+
+}

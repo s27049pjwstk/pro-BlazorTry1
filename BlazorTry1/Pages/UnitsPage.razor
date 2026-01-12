@@ -1,0 +1,90 @@
+﻿@page "/units"
+@inject NavigationManager NavigationManager
+@inject UnitService UnitService
+@inject IDialogService DialogService
+
+<PageTitle>Units</PageTitle>
+
+<MudContainer>
+    <MudStack Spacing="2">
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+            <MudButton Class="pa-1" Variant="Variant.Filled" Size="Size.Medium">
+                <MudTextField @bind-Value="Search"
+                              Placeholder="Search..."
+                              Immediate="true"
+                              DebounceInterval="300"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search"
+                              Clearable="true"
+                              AutoFocus="true"
+                              Underline="false"
+                />
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Size="Size.Medium" OnClick="@OpenCreateDialog">Create New Unit
+            </MudButton>
+        </MudStack>
+
+        <MudTable T="Unit"
+                  Items="_units"
+                  Hover="true"
+                  Loading="_loading"
+                  RowClass="cursor-pointer"
+                  OnRowClick="OnRowClickEvent">
+            <ColGroup>
+                <col style="width: 32px;"/>
+                <col style="width: 128px;"/>
+            </ColGroup>
+            <HeaderContent>
+                <MudTh>Abbreviation</MudTh>
+                <MudTh>Name</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd DataLabel="Abbreviation">@context.Abbreviation</MudTd>
+                <MudTd DataLabel="Name">@context.Name</MudTd>
+            </RowTemplate>
+
+            <NoRecordsContent>
+                <MudText>No Units found.</MudText>
+            </NoRecordsContent>
+        </MudTable>
+    </MudStack>
+</MudContainer>
+
+@code {
+
+    private List<Unit> _units = [];
+    private bool _loading;
+    private string? _search;
+
+    protected override async Task OnInitializedAsync() => await ReloadAsync();
+
+    private async Task ReloadAsync() {
+        _loading = true;
+        try {
+            _units = await UnitService.GetAllAsync(_search);
+        } finally {
+            _loading = false;
+        }
+    }
+
+    private void OnRowClickEvent(TableRowClickEventArgs<Unit> args) {
+        if (_loading) return;
+        NavigationManager.NavigateTo($"/units/{args.Item?.Id}");
+    }
+
+    private string? Search {
+        get => _search;
+        set {
+            _search = value;
+            InvokeAsync(ReloadAsync);
+        }
+    }
+
+    private async Task OpenCreateDialog() {
+        var dialog = await DialogService.ShowAsync<UnitUpsertDialog>("");
+        var result = await dialog.Result;
+        if (!(result?.Canceled ?? true)) await ReloadAsync();
+    }
+
+}

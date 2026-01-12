@@ -1,0 +1,97 @@
+﻿@page "/units/{UnitId:int}"
+
+@inject NavigationManager NavigationManager
+@inject UnitService UnitService
+@inject IDialogService DialogService
+
+<PageTitle>Unit</PageTitle>
+@if (_unit is null) {
+    <MudStack Class="pt-16" AlignItems="AlignItems.Center" Justify="Justify.Center">
+        <MudProgressCircular Indeterminate="true"/>
+    </MudStack>
+} else {
+    <MudGrid>
+        <MudItem xs="12" lg="6">
+            <MudPaper Elevation="2" Class="pa-4 align-center justify-center">
+                <MudStack AlignItems="AlignItems.Start" Row="true">
+                    <MudStack Spacing="0">
+                        <MudText Typo="Typo.h4">@_unit.Name</MudText>
+                        <MudText Typo="Typo.subtitle1">@_unit.Abbreviation</MudText>
+                    </MudStack>
+                    <MudSpacer/>
+                    <MudIconButton Class="pa-2" Icon="@Icons.Material.Filled.Edit" OnClick="@OpenCreateDialog"/>
+                </MudStack>
+                <MudDivider Class="my-3" Light="true"/>
+                <MudText Class="pl-1" Typo="Typo.body1">@_unit.Description</MudText>
+            </MudPaper>
+        </MudItem>
+        <MudItem xs="12" lg="6">
+            <MudTable T="User" Items="@_unit.Users" Hover="true" RowClass="cursor-pointer" OnRowClick="OnRowClick">
+                <ColGroup>
+                    <col style="width: 120px;"/>
+                    <col style="width: 40%;"/>
+                    <col style="width: 50%;"/>
+                    <col style="width: 80px;"/>
+                    <col style="width: 60px;"/>
+                </ColGroup>
+                <HeaderContent>
+                    <MudTh><b>Rank</b></MudTh>
+                    <MudTh><b>Name</b></MudTh>
+                    <MudTh><b>Position</b></MudTh>
+                    <MudTh><b>Status</b></MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Rank">@(context.Rank?.Abbreviation ?? context.Rank?.Name)</MudTd>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Position">@context.UnitRole</MudTd>
+                    <MudTd DataLabel="Status">
+                        @switch (context.Status) {
+                            case "LOA":
+                                <MudChip T="string" Color="Color.Primary">LOA</MudChip> break;
+                            case "Active":
+                                <MudChip T="string" Color="Color.Success">Active</MudChip> break;
+                            default:
+                                <MudChip T="string" Color="Color.Dark">Inactive</MudChip> break;
+                        }
+                    </MudTd>
+                    <MudTd>
+                        <MudIconButton Class="pa-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit"
+                                       OnClick="@(() => OpenUserAssignmentDialog(context))"/>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    [Parameter]
+    public int UnitId { get; set; }
+
+    private Unit? _unit;
+
+    protected override async Task OnParametersSetAsync() {
+        _unit = await UnitService.GetByIdWithMembersAsync(UnitId);
+    }
+    private void OnRowClick(TableRowClickEventArgs<User> args) {
+        NavigationManager.NavigateTo($"/users/{args.Item?.Id}");
+    }
+
+    private async Task OpenCreateDialog() {
+        var dialog = await DialogService.ShowAsync<UnitUpsertDialog>("", new DialogParameters { ["Unit"] = _unit });
+        var result = await dialog.Result;
+        if (!(result?.Canceled ?? true)) {
+            if (result.Data is UnitUpsertDialog.Result.Deleted) {
+                NavigationManager.NavigateTo("/units");
+            } else {
+                _unit = await UnitService.GetByIdWithMembersAsync(UnitId);
+            }
+        }
+    }
+    private async Task OpenUserAssignmentDialog(User user) {
+        var dialog = await DialogService.ShowAsync<UserAssignmentDialog>("", new DialogParameters { ["User"] = user });
+        var result = await dialog.Result;
+        if (!(result?.Canceled ?? true)) _unit = await UnitService.GetByIdWithMembersAsync(UnitId);
+    }
+}

@@ -1,24 +1,213 @@
-﻿@page "/User"
+﻿@page "/users/{UserId:int}"
 
-<PageTitle>User</PageTitle>
-<div>
-    <p>Id = @User.Id</p>
-    <p>Name = @User.Name</p>
-    <p>Discord = @User.DiscordId</p>
-</div>
+@inject NavigationManager NavigationManager
+@inject UserService UserService
+@inject ClipboardService ClipboardService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+@if (_user is null) {
+    <MudStack Class="pt-16" AlignItems="AlignItems.Center" Justify="Justify.Center">
+        <MudProgressCircular Indeterminate="true"/>
+    </MudStack>
+} else {
+    <MudStack Row="true">
+        <MudStack>
+            <MudPaper
+                Elevation="0"
+                Class="justify-center align-center pa-2"
+                Style="background: transparent;"
+                MaxHeight="400px"
+                Height="16vw"
+                MinHeight="300px"
+                MaxWidth="400px"
+                Width="16vw"
+                MinWidth="300px"
+            >
+                <MudAvatar Style="width: 100%; height: 100%;">
+                    <MudIconButton Variant="Variant.Filled" Style="width: 100%; height: 100%;" Color="Color.Dark">
+                        <MudIcon Style="width: 100%; height: 100%;" Icon="@Icons.Material.Rounded.Person"/>
+                    </MudIconButton>
+                </MudAvatar>
+            </MudPaper>
+
+            <MudPaper Class="pa-2" Elevation="2">
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">Rank</MudText>
+                <MudDivider/>
+                <MudText Align="Align.Center" Typo="Typo.h6">@_user.Rank?.Name</MudText>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="2">
+                    <MudText Typo="Typo.body2">
+                        @if (!string.IsNullOrWhiteSpace(_user.Rank?.Code)) {
+                            @_user.Rank.Code
+                            @if (!string.IsNullOrWhiteSpace(_user.Rank?.Abbreviation)) {
+                                @("|")
+                            }
+                        }
+                        @_user?.Rank?.Abbreviation
+                    </MudText>
+                </MudStack>
+            </MudPaper>
+            <MudPaper Class="py-2" Elevation="2">
+                <MudText Style="padding-left: 8px" Typo="Typo.caption" Class="mud-text-secondary">Assignment</MudText>
+                <MudDivider/>
+                <MudButton FullWidth="true" Variant="Variant.Text" Ripple="false"
+                           Class="justify-start rounded-0  cursor-default"
+                           OnClick="@(() => NavigationManager.Refresh())">
+                    <MudText Align="Align.Left" Style="line-height: 1.2;" Typo="Typo.body1">
+                        <b>Status</b><br/>
+                        @_user.Status
+                    </MudText>
+                    <MudSpacer/>
+
+                    <MudIconButton Class="pa-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit"/>
+                </MudButton>
+                <MudButton FullWidth="true" Variant="Variant.Text" Class="justify-start rounded-0"
+                           Ripple="@(_user.Unit is not null)"
+                           OnClick="@(() => {
+                                        if (_user.Unit is null) return;
+                                        NavigationManager.NavigateTo($"/units/{_user.Unit.Id}");
+                                    })">
+                    <MudStack Spacing="1">
+                        @if (_user.Unit is not null) {
+                            <MudText Align="Align.Left" Class="pb-2" Style="line-height: 1.2;" Typo="Typo.body1">
+                                <b>Unit</b><br/>
+                                @(_user.Unit?.Name ?? "Unassigned")
+                            </MudText>
+                        }
+                        <MudText Align="Align.Left" Style="line-height: 1.2;" Typo="Typo.body1">
+                            <b>Position</b><br/>
+                            @(_user.UnitRole ?? "None")
+                        </MudText>
+                    </MudStack>
+                    <MudSpacer/>
+                    <MudIconButton Class="pa-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit"
+                                   OnClick="@OpenUserAssignmentDialog"/>
+                </MudButton>
+                @*todo display edit buttons only if self or authenticated*@
+
+                @*todo edit buttons below as well*@
+            </MudPaper>
+            <MudPaper Class="py-2" Elevation="2">
+                <MudText Style="padding-left: 8px" Typo="Typo.caption" Class="mud-text-secondary">Information</MudText>
+                <MudDivider/>
+                <MudButton FullWidth="true" Ripple="false" Variant="Variant.Text"
+                           Class="justify-start rounded-0 cursor-default"
+                           OnClick="@(() => ClipboardService.CopyToClipboard(_user.DateJoined.ToDiscordTimestamp()))">
+                    <MudText Align="Align.Left" Style="line-height: 1.2;" Typo="Typo.body1">
+                        <b>Joined</b><br/>
+                        @_user.DateJoined.ToLocalTime().ToString("d") <i>@_user.DateJoined.ToLocalTime().TimeAgo()</i>
+                    </MudText>
+                </MudButton>
+                <MudButton FullWidth="true" Variant="Variant.Text" Class="justify-start rounded-0"
+                           OnClick="@(() => ClipboardService.CopyToClipboard(_user.SteamId))">
+                    <MudText Align="Align.Left" Style="line-height: 1.2;" Typo="Typo.body1">
+                        <b>SteamID64</b><br/>
+                        @(_user.SteamId ?? "None")
+                    </MudText>
+                    <MudSpacer/>
+
+                    <MudIconButton Class="pa-2" Size="Size.Small" Icon="@Icons.Material.Filled.Edit"/>
+                </MudButton>
+                <MudButton FullWidth="true" Ripple="@(_user.DiscordId is not null)" Variant="Variant.Text"
+                           Class="justify-start rounded-0"
+                           OnClick="@(() => ClipboardService.CopyToClipboard(_user.DiscordId))">
+                    <MudText Align="Align.Left" Style="line-height: 1.2;" Typo="Typo.body1">
+                        <b>Discord ID</b><br/>
+                        @(_user.DiscordId ?? "None")
+                    </MudText>
+                    <MudSpacer/>
+                    @if (_user.DiscordId is not null) {
+                        <MudIcon Color="Color.Default" Size="Size.Small" Class="mr-2"
+                                 Icon="@Icons.Material.Rounded.ContentCopy"/>
+                    }
+                </MudButton>
+
+            </MudPaper>
+            <MudPaper Class="pa-2" Elevation="2">
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">Certifications</MudText>
+                <MudDivider/>
+                @if (_certifications.Count == 0) {
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">None</MudText>
+                } else {
+                    <MudList T="string" Dense="true">
+                        @foreach (var c in _certifications) {
+                            <MudListItem T="string">@c</MudListItem>
+                        }
+                    </MudList>
+                }
+            </MudPaper>
+            <MudPaper Class="pa-2" Elevation="2">
+                <MudText Typo="Typo.caption" Class="mud-text-secondary">Admin Note</MudText>
+                <MudDivider/>
+                @if (string.IsNullOrWhiteSpace(_user.Note)) {
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">None</MudText>
+                } else {
+                    <MudText Typo="Typo.body2">@_user.Note</MudText>
+                }
+            </MudPaper>
+        </MudStack>
+        <MudStack>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                <MudText Class="py-6" Typo="Typo.h2">@_user?.Name</MudText>
+                <MudChip T="string" Size="Size.Large"
+                         Color="@(_user.Status switch { "LOA" => Color.Primary, "Active" => Color.Success, _ => Color.Dark })"> @*todo fixme make a func/prop in model or make a global enum or use number instead of string in genereal*@
+                    @_user.Status
+                </MudChip>
+            </MudStack>
+            @*todo add content here*@
+            @*todo fixme*@
+            <MudPaper Class="pa-3">
+                <MudTabs Rounded="true" Elevation="0">
+                    <MudTabPanel Text="Awards">
+                    </MudTabPanel>
+                    <MudTabPanel Text="Events">
+                    </MudTabPanel>
+                    <MudTabPanel Text="Ranks">
+                    </MudTabPanel>
+                    <MudTabPanel Text="Assignments">
+                    </MudTabPanel>
+                    <MudTabPanel Text="Certifications">
+                    </MudTabPanel>
+                </MudTabs>
+            </MudPaper>
+        </MudStack>
+    </MudStack>
+}
+
+
+
+
 
 @code {
 
-    private User? User { get; set; }
-    [SupplyParameterFromQuery] public int Id { get; set; }
-    private readonly Context _database = new();
+    [Parameter]
+    public int UserId { get; set; }
 
-    protected override async Task OnInitializedAsync() {
-        User = await _database.Users.FindAsync(Id);
+    private User? _user;
+    private List<string> _certifications = [];
 
-        if (User is null) {
+    protected override async Task OnParametersSetAsync() {
+        _user = await UserService.GetByIdAsync(UserId);
+        if (_user is null) {
+            Snackbar.Add("User does not exist", Severity.Error);
             NavigationManager.NavigateTo("users");
         }
+        _certifications = _user?.UserCertifications?
+                              .Select(x => x.Certification?.Name ?? "—")
+                              .ToList()
+                          ?? [];
+    }
+
+    private static Color GetStatusColor(string? status) => status switch {
+        "LOA" => Color.Primary, "Active" => Color.Success, _ => Color.Dark
+    };
+
+
+
+    private async Task OpenUserAssignmentDialog() {
+        var dialog = await DialogService.ShowAsync<UserAssignmentDialog>("", new DialogParameters { ["User"] = _user });
+        var result = await dialog.Result;
+        if (!(result?.Canceled ?? true)) _user = await UserService.GetByIdAsync(_user!.Id);
     }
 
 }
