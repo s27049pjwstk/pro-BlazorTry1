@@ -12,20 +12,13 @@
     </MudStack>
 } else {
     <MudStack Row="true">
-        <MudStack>
-            <MudPaper
-                Elevation="0"
-                Class="justify-center align-center pa-2"
-                Style="background: transparent;"
-                MaxHeight="400px"
-                Height="16vw"
-                MinHeight="300px"
-                MaxWidth="400px"
-                Width="16vw"
-                MinWidth="300px"
-            >
-                <MudAvatar Style="width: 100%; height: 100%;">
-                    <MudIconButton Variant="Variant.Filled" Style="width: 100%; height: 100%;" Color="Color.Dark">
+        <MudStack Style="width: 16vw; min-width: 300px; max-width: 400px;">
+            <MudPaper Style="background: transparent;"
+                      Class="pa-2"
+                      Elevation="0">
+                <MudAvatar Style="width: 100%; height: 100%; aspect-ratio: 1/1;">
+                    <MudIconButton Variant="Variant.Filled" Style="width: 100%; height: 100%; padding: 0;"
+                                   Color="Color.Dark">
                         <MudIcon Style="width: 100%; height: 100%;" Icon="@Icons.Material.Rounded.Person"/>
                     </MudIconButton>
                 </MudAvatar>
@@ -201,7 +194,6 @@
     private static Color GetStatusColor(string? status) => status switch {
         "LOA" => Color.Primary, "Active" => Color.Success, _ => Color.Dark
     };
-
 
 
     private async Task OpenUserAssignmentDialog() {
