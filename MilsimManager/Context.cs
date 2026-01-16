@@ -21,10 +21,6 @@ public class Context : DbContext {
     public DbSet<Event> Events => Set<Event>();
     public DbSet<UserAttendance> UserAttendances => Set<UserAttendance>();
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-        optionsBuilder.UseSqlite("data source=database.db");
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         modelBuilder.Entity<User>(e => {
             e.HasKey(u => u.Id);
