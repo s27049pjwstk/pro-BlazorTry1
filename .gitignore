@@ -4,7 +4,7 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 
-BlazorTry1/wwwroot/mudblazor
+*/wwwroot/mudblazor
 
 # Local SQLite database files (dev)
 *.db
