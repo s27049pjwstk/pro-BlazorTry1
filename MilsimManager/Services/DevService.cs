@@ -3,7 +3,7 @@ using MilsimManager.Models;
 
 namespace MilsimManager.Services;
 
-public class DevService(Context db) {
+public class DevService(Context db) : IDevService {
     public async Task ResetAsync() {
         await ClearAllDataAsync();
         await SeedExampleDataAsync();

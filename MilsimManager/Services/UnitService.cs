@@ -3,7 +3,7 @@ using MilsimManager.Models;
 
 namespace MilsimManager.Services;
 
-public class UnitService(Context db) {
+public class UnitService(Context db) :IUnitService {
     public async Task<Unit?> GetByIdAsync(int id) {
         return await db.Units.FirstOrDefaultAsync(u => u.Id == id);
     }

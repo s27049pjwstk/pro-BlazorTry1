@@ -3,7 +3,7 @@ using MilsimManager.Models;
 
 namespace MilsimManager.Services;
 
-public class UserService(Context db) {
+public class UserService(Context db) : IUserService {
     public async Task<User?> GetByIdAsync(int id) {
         return await db.Users
             .Include(u => u.Rank)

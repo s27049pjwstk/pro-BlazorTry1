@@ -8,7 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddDbContext<Context>(options => options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+builder.Services.AddDbContext<Context>(options => options.UseSqlite(builder.Configuration.GetConnectionString("Default") 
+                                                                    ?? throw new InvalidOperationException("Missing Connection String")));
 builder.Services.AddMudServices(config => {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
     config.SnackbarConfiguration.PreventDuplicates = false;
@@ -19,10 +20,10 @@ builder.Services.AddMudServices(config => {
     config.SnackbarConfiguration.ShowTransitionDuration = 500;
     config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
 });
-builder.Services.AddScoped<DevService>();//todo add Interface?
-builder.Services.AddScoped<UserService>();//todo add Interface
-builder.Services.AddScoped<UnitService>();//todo add Interface
-builder.Services.AddScoped<ClipboardService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUnitService, UnitService>();
+builder.Services.AddScoped<IDevService, DevService>();
+builder.Services.AddScoped<IClipboardService, ClipboardService>();
 
 var app = builder.Build();
 
