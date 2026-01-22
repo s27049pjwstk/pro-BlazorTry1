@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddDbContext<Context>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")
-                                                                    ?? throw new InvalidOperationException("Missing Connection String")));
+builder.Services.AddDbContextFactory<Context>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")
+                                                                           ?? throw new InvalidOperationException("Missing Connection String")));
 builder.Services.AddMudServices(config => {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
     config.SnackbarConfiguration.PreventDuplicates = false;

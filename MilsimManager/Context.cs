@@ -3,9 +3,7 @@ using MilsimManager.Models;
 
 namespace MilsimManager;
 
-public class Context : DbContext {
-    public Context() {}
-    public Context(DbContextOptions options) : base(options) {}
+public class Context(DbContextOptions<Context> options) : DbContext(options) {
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Rank> Ranks => Set<Rank>();

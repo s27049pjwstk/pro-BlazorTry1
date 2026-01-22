@@ -3,9 +3,12 @@ using MilsimManager.Models;
 
 namespace MilsimManager.Services;
 
-public class UserService(Context db) : IUserService {
+public class UserService(IDbContextFactory<Context> dbFactory) : IUserService {
     public async Task<User?> GetByIdAsync(int id) {
+        await using var db = await dbFactory.CreateDbContextAsync();
+
         return await db.Users
+            .AsNoTracking()
             .Include(u => u.Rank)
             .Include(u => u.Unit)
             .Include(u => u.LeaveOfAbsences)
@@ -18,8 +21,9 @@ public class UserService(Context db) : IUserService {
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 
-
     public async Task<List<User>> GetAllAsync(string? search = null) {
+        await using var db = await dbFactory.CreateDbContextAsync();
+
         var q = db.Users
             .AsNoTracking()
             .Include(u => u.Rank)
@@ -33,18 +37,22 @@ public class UserService(Context db) : IUserService {
 
         return await q
             .OrderBy(u => u.Name)
-            .AsNoTracking()
             .ToListAsync();
     }
+
     public async Task<bool> UserExists(int id) {
-        return await db.Users.AnyAsync(u => u.Id == id);
+        await using var db = await dbFactory.CreateDbContextAsync();
+        return await db.Users.AsNoTracking().AnyAsync(u => u.Id == id);
     }
+
     public async Task<User> AssignUserAsync(int userId, int? unitId, string? unitRole) {
+        await using var db = await dbFactory.CreateDbContextAsync();
+
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
         if (user is null) throw new AppException("User not found");
 
         if (unitId is not null) {
-            var unitExists = await db.Units.AnyAsync(u => u.Id == unitId);
+            var unitExists = await db.Units.AsNoTracking().AnyAsync(u => u.Id == unitId);
             if (!unitExists) throw new AppException("Unit not found");
             user.UnitId = unitId;
         } else {
@@ -56,5 +64,4 @@ public class UserService(Context db) : IUserService {
         await db.SaveChangesAsync();
         return user;
     }
-
 }

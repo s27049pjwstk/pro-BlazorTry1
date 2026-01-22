@@ -3,15 +3,17 @@ using MilsimManager.Models;
 
 namespace MilsimManager.Services;
 
-public class DevService(Context db) : IDevService {
+public class DevService(IDbContextFactory<Context> dbFactory) : IDevService {
     public async Task ResetAsync() {
+        await using var db = await dbFactory.CreateDbContextAsync();
+
         await db.Database.EnsureDeletedAsync();
         await db.Database.MigrateAsync();
 
-        await SeedExampleDataAsync();
+        await SeedExampleDataAsync(db);
     }
 
-    private async Task SeedExampleDataAsync() {
+    private static async Task SeedExampleDataAsync(Context db) {
         if (await db.Users.AnyAsync()) return;
 
         var unitCmd = new Unit { Name = "Command", Abbreviation = "HQ", Description = "Command and admin." };
