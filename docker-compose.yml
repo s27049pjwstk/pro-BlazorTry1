@@ -1,0 +1,21 @@
+﻿services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: milsim
+      POSTGRES_PASSWORD: milsim
+      POSTGRES_DB: milsimmanager
+    ports:
+      - "5432:5432"
+    # volumes:
+    #   - milsimmanager-db:/var/lib/postgresql/data
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U milsim -d milsimmanager"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+#volumes:
+#  milsimmanager-db:

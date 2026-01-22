@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddDbContext<Context>(options => options.UseSqlite(builder.Configuration.GetConnectionString("Default") 
+builder.Services.AddDbContext<Context>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")
                                                                     ?? throw new InvalidOperationException("Missing Connection String")));
 builder.Services.AddMudServices(config => {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
@@ -27,6 +27,12 @@ builder.Services.AddScoped<IClipboardService, ClipboardService>();
 builder.Services.AddScoped<IErrorHandler, ErrorHandler>();
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment()) {
+    using var scope = app.Services.CreateScope();
+    var dev = scope.ServiceProvider.GetRequiredService<IDevService>();
+    await dev.ResetAsync();
+}
 
 if (!app.Environment.IsDevelopment()) {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);

@@ -5,29 +5,10 @@ namespace MilsimManager.Services;
 
 public class DevService(Context db) : IDevService {
     public async Task ResetAsync() {
-        await ClearAllDataAsync();
+        await db.Database.EnsureDeletedAsync();
+        await db.Database.MigrateAsync();
+
         await SeedExampleDataAsync();
-    }
-
-    private async Task ClearAllDataAsync() {
-        db.ChangeTracker.Clear();
-
-        await using var transaction = await db.Database.BeginTransactionAsync();
-
-        await db.UserAwards.ExecuteDeleteAsync();
-        await db.UserCertifications.ExecuteDeleteAsync();
-        await db.UserAttendances.ExecuteDeleteAsync();
-        await db.UnitAssignmentLogs.ExecuteDeleteAsync();
-        await db.StatusLogs.ExecuteDeleteAsync();
-        await db.LeaveOfAbsences.ExecuteDeleteAsync();
-        await db.Users.ExecuteDeleteAsync();
-        await db.Events.ExecuteDeleteAsync();
-        await db.Units.ExecuteDeleteAsync();
-        await db.Awards.ExecuteDeleteAsync();
-        await db.Certifications.ExecuteDeleteAsync();
-        await db.Ranks.ExecuteDeleteAsync();
-
-        await transaction.CommitAsync();
     }
 
     private async Task SeedExampleDataAsync() {
