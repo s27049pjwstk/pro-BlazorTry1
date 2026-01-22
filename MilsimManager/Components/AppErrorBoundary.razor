@@ -1,0 +1,29 @@
+﻿@inherits ErrorBoundary
+@inject ILogger<AppErrorBoundary> Logger
+@inject IWebHostEnvironment Env
+
+@if (CurrentException is null) {
+    @ChildContent
+} else {
+    <MudStack Class="pa-6">
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Elevation="2">
+            @(CurrentException is AppException ae ? ae.Message : "Unexpected error occurred.")
+        </MudAlert>
+
+        @if (Env.IsDevelopment()) {
+            <MudButton OnClick="@Recover">Recover</MudButton>
+            <MudPaper Elevation="2" Class="pa-4">
+                <MudText Style="font-family: monospace;">
+                    @CurrentException.ToString()
+                </MudText>
+            </MudPaper>
+        }
+    </MudStack>
+}
+
+@code {
+    protected override Task OnErrorAsync(Exception exception) {
+        Logger.LogError(exception, "UI ErrorBoundary caught an exception");
+        return Task.CompletedTask;
+    }
+}

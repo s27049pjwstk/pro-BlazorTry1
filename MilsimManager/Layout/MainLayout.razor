@@ -7,31 +7,33 @@
 <MudSnackbarProvider/>
 
 <MudLayout>
-    <MudDrawer @bind-Open="@_open"
-               Class="pa-2"
-               Elevation="1">
-        <NavMenu/>
-        <MudStack Spacing="2">
-            @if (Env.IsDevelopment()) {
-                <DevReset/>
-            }
-            <UserBox/>
-        </MudStack>
-    </MudDrawer>
-    <MudFab Class="z-10 fixed"
-            Style=" left:8px; bottom:8px;"
-            Color="Color.Primary"
-            StartIcon="@Icons.Material.Filled.Menu"
-            OnClick="@ToggleDrawer"
-    />
+    <AppErrorBoundary>
+        <MudDrawer @bind-Open="@_open"
+                   Class="pa-2"
+                   Elevation="1">
+            <NavMenu/>
+            <MudStack Spacing="2">
+                @if (Env.IsDevelopment()) {
+                    <DevReset/>
+                }
+                <UserBox/>
+            </MudStack>
+        </MudDrawer>
+        <MudFab Class="z-10 fixed"
+                Style=" left:8px; bottom:8px;"
+                Color="Color.Primary"
+                StartIcon="@Icons.Material.Filled.Menu"
+                OnClick="@ToggleDrawer"
+        />
 
-    <MudMainContent Class="pa-4">
-        <MudContainer MaxWidth="MaxWidth.False" Class="pa-0">
-            <div>
-                @Body
-            </div>
-        </MudContainer>
-    </MudMainContent>
+        <MudMainContent Class="pa-4">
+            <MudContainer MaxWidth="MaxWidth.False" Class="pa-0">
+                <div>
+                    @Body
+                </div>
+            </MudContainer>
+        </MudMainContent>
+    </AppErrorBoundary>
 </MudLayout>
 
 @code{

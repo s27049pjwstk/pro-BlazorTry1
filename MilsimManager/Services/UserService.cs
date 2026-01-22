@@ -41,12 +41,12 @@ public class UserService(Context db) : IUserService {
     }
     public async Task<User> AssignUserAsync(int userId, int? unitId, string? unitRole) {
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
-        if (user is null) throw new ArgumentException("User not found", nameof(userId));
+        if (user is null) throw new AppException("User not found");
 
         if (unitId is not null) {
-            var unitExists = await db.Units.AnyAsync(u => u.Id == unitId.Value);
-            if (!unitExists) throw new ArgumentException("Unit not found", nameof(unitId));
-            user.UnitId = unitId.Value;
+            var unitExists = await db.Units.AnyAsync(u => u.Id == unitId);
+            if (!unitExists) throw new AppException("Unit not found");
+            user.UnitId = unitId;
         } else {
             user.UnitId = null;
         }

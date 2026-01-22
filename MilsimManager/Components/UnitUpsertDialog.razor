@@ -1,5 +1,4 @@
-﻿@using System.ComponentModel.DataAnnotations
-@using Microsoft.EntityFrameworkCore
+﻿@inject IErrorHandler ErrorHandler
 @inject IUnitService UnitService
 @inject ISnackbar Snackbar
 
@@ -20,7 +19,7 @@
                           Label="Callsign"
                           Variant="Variant.Outlined"
                           MaxLength="16"
-                          Validation="ValidateAbbreviationAsync"
+                          Validation="@ValidateAbbreviationAsync"
                           Margin="Margin.Dense"/>
             <MudTextField @bind-Value="_dto.Description"
                           Label="Description"
@@ -58,7 +57,8 @@
     public enum Result {
         Created,
         Updated,
-        Deleted
+        Deleted,
+        Failed
     }
 
     private MudForm _form = null!;
@@ -83,13 +83,8 @@
     }
 
     private sealed class UnitDto {
-        [Required, MaxLength(64)]
         public string Name { get; set; } = null!;
-
-        [MaxLength(16)]
         public string? Abbreviation { get; set; }
-
-        [MaxLength(1000)]
         public string? Description { get; set; }
     }
 
@@ -117,25 +112,28 @@
         _disabled = true;
         try {
             if (Unit is null) {
-                var created = await UnitService.CreateAsync(
-                _dto.Name,
-                _dto.Abbreviation,
-                _dto.Description
-                );
-                Snackbar.Add($"Unit {created.Name} created", Severity.Success);
+                var created = await ErrorHandler.ExecuteAsync(
+                async () => await UnitService.CreateAsync(_dto.Name, _dto.Abbreviation, _dto.Description),
+                "Failed to create unit.",
+                null,
+                true);
+
+                if (created is not null) Snackbar.Add($"Unit {created.Name} created", Severity.Success);
                 MudDialog.Close(DialogResult.Ok(Result.Created));
             } else {
-                var updated = await UnitService.UpdateAsync(
-                Unit.Id,
-                _dto.Name,
-                _dto.Abbreviation,
-                _dto.Description
-                );
+                var updated = await ErrorHandler.ExecuteAsync(
+                async () => await UnitService.UpdateAsync(Unit.Id, _dto.Name, _dto.Abbreviation, _dto.Description),
+                "Failed to update unit.",
+                null,
+                true);
+
+                if (updated is null) {
+                    MudDialog.Cancel(); 
+                    return; 
+                }
                 Snackbar.Add($"Unit {updated.Name} updated", Severity.Success);
                 MudDialog.Close(DialogResult.Ok(Result.Updated));
             }
-        } catch (DbUpdateException ex) {
-            Snackbar.Add(ex.InnerException?.Message ?? ex.Message, Severity.Error);
         } finally {
             _disabled = false;
         }
@@ -145,13 +143,11 @@
         if (Unit is null) return;
         _disabled = true;
         try {
-            var deleted = await UnitService.DeleteAsync(Unit.Id);
-            if (deleted > 0) {
-                Snackbar.Add("Unit deleted", Severity.Success);
-            } else {
-                Snackbar.Add("No units deleted", Severity.Error);
-            }
+            await ErrorHandler.ExecuteAsync(() => UnitService.DeleteAsync(Unit.Id), "Failed to delete unit");
+            Snackbar.Add("Unit deleted", Severity.Success);
             MudDialog.Close(DialogResult.Ok(Result.Deleted));
+        } catch {
+            MudDialog.Close(DialogResult.Ok(Result.Failed));
         } finally {
             _disabled = false;
         }

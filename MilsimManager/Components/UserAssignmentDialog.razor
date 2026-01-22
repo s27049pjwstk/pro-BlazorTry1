@@ -1,4 +1,4 @@
-﻿@using Microsoft.EntityFrameworkCore
+﻿@inject IErrorHandler ErrorHandler
 @inject IUnitService UnitService
 @inject IUserService UserService
 @inject ISnackbar Snackbar
@@ -22,7 +22,11 @@
                              SearchFunc="SearchUnits"
                              ToStringFunc="@(u => u is null ? null : $"{u.Name} ({u.Abbreviation})")">
                 <ItemTemplate Context="u">
-                    <MudStack Row="true"><MudText>@u.Name</MudText><MudSpacer/><MudText><i>@u.Abbreviation</i></MudText></MudStack>
+                    <MudStack Row="true">
+                        <MudText>@u.Name</MudText>
+                        <MudSpacer/>
+                        <MudText><i>@u.Abbreviation</i></MudText>
+                    </MudStack>
                 </ItemTemplate>
             </MudAutocomplete>
             <MudTextField @bind-Value="_dto.UnitRole"
@@ -101,12 +105,20 @@
 
         _disabled = true;
         try {
-            await UserService.AssignUserAsync(_dto.UserId, _dto.Unit?.Id, _dto.UnitRole);
-            var text = User.Unit is null ? "assigned" : "reassigned";
-            Snackbar.Add($"{User.Name} successfully {text}", Severity.Success);
+            var ok = await ErrorHandler.ExecuteAsync(
+            async () => {
+                await UserService.AssignUserAsync(_dto.UserId, _dto.Unit?.Id, _dto.UnitRole);
+                return true;
+            },
+            userMessage: "Failed to update assignment.",
+            fallback: false,
+            swallowUnexpected: true);
+
+            if (ok) {
+                var text = User.Unit is null ? "assigned" : "reassigned";
+                Snackbar.Add($"{User.Name} successfully {text}", Severity.Success);
+            }
             MudDialog.Close(DialogResult.Ok(true));
-        } catch (DbUpdateException ex) {
-            Snackbar.Add(ex.InnerException?.Message ?? ex.Message, Severity.Error);
         } finally {
             _disabled = false;
         }
