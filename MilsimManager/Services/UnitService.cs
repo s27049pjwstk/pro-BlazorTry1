@@ -57,11 +57,16 @@ public class UnitService(IDbContextFactory<Context> dbFactory) : IUnitService {
         return unit;
     }
 
-    public async Task<Unit> UpdateAsync(int id, string name, string? abbreviation, string? description) {
+    public async Task<Unit> UpdateAsync(int id, uint version, string name, string? abbreviation, string? description) {
         await using var db = await dbFactory.CreateDbContextAsync();
 
-        var unit = await db.Units.FirstOrDefaultAsync(u => u.Id == id);
-        if (unit == null) throw new AppException("Unit not found.");
+        Unit unit;
+        try {
+            unit = await db.Units.SingleAsync(u => u.Id == id);
+        } catch (InvalidOperationException) {
+            throw new AppException("Unit not found.");
+        }
+        db.Entry(unit).Property(u => u.Version).OriginalValue = version;
 
         unit.Name = name.Trim();
         unit.Abbreviation = string.IsNullOrWhiteSpace(abbreviation) ? null : abbreviation.Trim();
@@ -69,6 +74,8 @@ public class UnitService(IDbContextFactory<Context> dbFactory) : IUnitService {
 
         try {
             await db.SaveChangesAsync();
+        } catch (DbUpdateConcurrencyException) {
+            throw new AppException("Concurrency error");
         } catch (DbUpdateException) {
             throw new AppException("Failed to update database.");
         }

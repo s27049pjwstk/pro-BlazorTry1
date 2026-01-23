@@ -6,6 +6,6 @@ public interface IUserService {
     Task<User?> GetByIdAsync(int id);
     Task<List<User>> GetAllAsync(string? search = null);
     Task<bool> UserExists(int id);
-    Task<User> AssignUserAsync(int userId, int? unitId, string? unitRole);
+    Task<User> AssignUserAsync(int userId, uint version, int? unitId, string? unitRole);
 
 }

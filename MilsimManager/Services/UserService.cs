@@ -45,11 +45,12 @@ public class UserService(IDbContextFactory<Context> dbFactory) : IUserService {
         return await db.Users.AsNoTracking().AnyAsync(u => u.Id == id);
     }
 
-    public async Task<User> AssignUserAsync(int userId, int? unitId, string? unitRole) {
+    public async Task<User> AssignUserAsync(int userId, uint version, int? unitId, string? unitRole) {
         await using var db = await dbFactory.CreateDbContextAsync();
 
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
         if (user is null) throw new AppException("User not found");
+        db.Entry(user).Property(u => u.Version).OriginalValue = version;
 
         if (unitId is not null) {
             var unitExists = await db.Units.AsNoTracking().AnyAsync(u => u.Id == unitId);
@@ -61,7 +62,11 @@ public class UserService(IDbContextFactory<Context> dbFactory) : IUserService {
 
         user.UnitRole = string.IsNullOrWhiteSpace(unitRole) ? null : unitRole.Trim();
 
-        await db.SaveChangesAsync();
+        try {
+            await db.SaveChangesAsync();
+        } catch (DbUpdateConcurrencyException) {
+            throw new AppException("Concurrency error");
+        }
         return user;
     }
 }

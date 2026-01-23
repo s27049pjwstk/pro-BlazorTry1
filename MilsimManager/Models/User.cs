@@ -6,6 +6,9 @@ namespace MilsimManager.Models;
 public class User {
     public int Id { get; set; }
 
+    [Timestamp]
+    public uint Version { get; set; }
+
     [Required, MaxLength(32)]
     public string Name { get; set; } = null!;
 
@@ -38,7 +41,7 @@ public class User {
     public ICollection<UserAward> UserAwards { get; set; } = new List<UserAward>();
     public ICollection<UnitAssignmentLog> UnitAssignmentLogs { get; set; } = new List<UnitAssignmentLog>();
     public ICollection<UserAttendance> UserAttendances { get; set; } = new List<UserAttendance>();
-    
+
     [NotMapped]
     public string Status => Active ? isOnLeaveOfAbsence() ? "LOA" : "Active" : "Inactive";
 

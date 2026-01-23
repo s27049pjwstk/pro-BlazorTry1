@@ -3,6 +3,10 @@
 namespace MilsimManager.Models;
 
 public class UserCertification {
+
+    [Timestamp]
+    public uint Version { get; set; }
+
     [Required]
     public int UserId { get; set; }
     public User User { get; set; } = null!;

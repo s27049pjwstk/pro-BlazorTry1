@@ -66,7 +66,6 @@
 
     protected override void OnParametersSet() {
         _dto = new AssigmentDto {
-            UserId = User.Id,
             Unit = User.Unit,
             UnitRole = User.UnitRole
         };
@@ -87,16 +86,11 @@
     }
 
     private sealed class AssigmentDto {
-        public int UserId { get; set; }
         public Unit? Unit { get; set; }
         public string? UnitRole { get; set; }
     }
 
-    private async Task<string?> ValidateUnitAsync(int? id) {
-        if (id is null) return null;
-        if (await UnitService.UnitExists(id.Value)) return null;
-        return "Unit does not exist";
-    }
+    private async Task<string?> ValidateUnitAsync(Unit? unit) => unit is null || await UnitService.UnitExists(unit.Id) ? null : "Unit does not exist";
 
     private async Task AssignAsync() {
         _dto.UnitRole = _dto.UnitRole?.Trim();
@@ -107,7 +101,7 @@
         try {
             var ok = await ErrorHandler.ExecuteAsync(
             async () => {
-                await UserService.AssignUserAsync(_dto.UserId, _dto.Unit?.Id, _dto.UnitRole);
+                await UserService.AssignUserAsync(User.Id, User.Version, _dto.Unit?.Id, _dto.UnitRole);
                 return true;
             },
             userMessage: "Failed to update assignment.",

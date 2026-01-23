@@ -4,7 +4,10 @@ namespace MilsimManager.Models;
 
 public class Rank {
     public int Id { get; set; }
-    
+
+    [Timestamp]
+    public uint Version { get; set; }
+
     public int SortOrder { get; set; }
 
     [Required, MaxLength(50)]
@@ -20,5 +23,5 @@ public class Rank {
     public string? Description { get; set; }
 
     public ICollection<User> Users { get; set; } = new List<User>();
-    
+
 }

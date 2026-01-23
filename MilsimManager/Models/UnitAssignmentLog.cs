@@ -5,6 +5,9 @@ namespace MilsimManager.Models;
 public class UnitAssignmentLog {
     public int Id { get; set; }
 
+    [Timestamp]
+    public uint Version { get; set; }
+
     [Required]
     public int UserId { get; set; }
     public User User { get; set; } = null!;

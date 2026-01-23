@@ -122,7 +122,7 @@
                 MudDialog.Close(DialogResult.Ok(Result.Created));
             } else {
                 var updated = await ErrorHandler.ExecuteAsync(
-                async () => await UnitService.UpdateAsync(Unit.Id, _dto.Name, _dto.Abbreviation, _dto.Description),
+                async () => await UnitService.UpdateAsync(Unit.Id, Unit.Version, _dto.Name, _dto.Abbreviation, _dto.Description),
                 "Failed to update unit.",
                 null,
                 true);
