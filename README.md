@@ -1,11 +1,9 @@
 ﻿# MilsimManager
 
-#### Hubert Płociński s27049
+> Praca inżynierska - Hubert Płociński s27049
 
 Web app for managing Arma 3 milsim communities (members, units, ranks, awards, certifications, attendance/events).
 The goal is to replace scattered spreadsheets/tools with a single, consistent system for admins and members.
-
-> Academic engineering project (Praca inżynierska).
 
 #### [Figma (Wireframe)](https://www.figma.com/design/vFjFr9PPCNHk5uJG9aM232/s27049-In%C5%BCynierka?node-id=0-1&t=cROPkyiHY8S6ULIx-1)
 
